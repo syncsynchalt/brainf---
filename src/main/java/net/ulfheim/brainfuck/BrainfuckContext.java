@@ -7,8 +7,7 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Formatter;
 import java.util.List;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.apache.log4j.Logger;
 
 /**
  *
@@ -16,7 +15,7 @@ import org.apache.logging.log4j.Logger;
  */
 class BrainfuckContext {
 
-	private static final Logger logger = LogManager.getLogger(BrainfuckContext.class.getName());
+	private static final Logger logger = Logger.getLogger(BrainfuckContext.class.getName());
 
 	List<Byte> mill = new ArrayList<Byte>(1000);
 	int index;
