@@ -26,6 +26,10 @@ class BrainfuckContext {
 	}
 
 	private void printDebugInfo(String command) {
+		if (logger.isDebugEnabled() == false) {
+			return;
+		}
+
 		Formatter formatter = new Formatter();
 		byte current = mill.get(index);
 		int currentAsInt;
