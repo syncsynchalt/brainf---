@@ -4,9 +4,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
 import java.util.Formatter;
-import java.util.List;
 import org.apache.log4j.Logger;
 
 /**
@@ -17,12 +15,16 @@ class BrainfuckContext {
 
 	private static final Logger logger = Logger.getLogger(BrainfuckContext.class.getName());
 
-	List<Byte> mill = new ArrayList<Byte>(1000);
-	int index;
-	int depth;
+	private byte[] mill;
+	private int index;
+	private int depth;
+
+	public BrainfuckContext(int size) {
+		mill = new byte[size];
+	}
 
 	public BrainfuckContext() {
-		mill.add((byte)0);
+		this(256);
 	}
 
 	private void printDebugInfo(String command) {
@@ -31,7 +33,7 @@ class BrainfuckContext {
 		}
 
 		Formatter formatter = new Formatter();
-		byte current = mill.get(index);
+		byte current = mill[index];
 		int currentAsInt;
 		if (current < 0) {
 			currentAsInt = 0x100 + current;
@@ -80,25 +82,23 @@ class BrainfuckContext {
 					break;
 				case '>':
 					index++;
-					if (index >= mill.size()) {
-						mill.add((byte)0);
+					if (index >= mill.length) {
+						byte[] newMill = new byte[mill.length * 2];
+						System.arraycopy(mill, 0, newMill, 0, mill.length);
+						mill = newMill;
 					}
 					printDebugInfo(">");
 					break;
 				case '+':
-					value = mill.get(index);
-					value++;
-					mill.set(index, value);
+					mill[index]++;
 					printDebugInfo("+");
 					break;
 				case '-':
-					value = mill.get(index);
-					value--;
-					mill.set(index, value);
+					mill[index]--;
 					printDebugInfo("-");
 					break;
 				case '.':
-					value = mill.get(index);
+					value = mill[index];
 					out.write(value);
 					printDebugInfo(".");
 					break;
@@ -106,7 +106,7 @@ class BrainfuckContext {
 					int inputValue = (byte)in.read();
 					value = (byte)inputValue;
 					if (inputValue != -1) {
-						mill.set(index, value);
+						mill[index] = value;
 						printDebugInfo(",");
 					} else {
 						printDebugInfo(",!");
@@ -127,7 +127,7 @@ class BrainfuckContext {
 
 		byte[] subProgramBytes = subProgram.getBytes("UTF-8");
 		depth++;
-		while (mill.get(index) != 0) {
+		while (mill[index] != 0) {
 			printDebugInfo("@");
 			InputStream newProgram = new ByteArrayInputStream(subProgramBytes);
 			parse(newProgram, in, out);
