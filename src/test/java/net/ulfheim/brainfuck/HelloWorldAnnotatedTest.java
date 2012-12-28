@@ -14,15 +14,15 @@ import static org.junit.Assert.*;
  *
  * @author mdriscoll
  */
-public class HelloWorldTest
+public class HelloWorldAnnotatedTest
 {
 	
 	/**
-	 * Test the un-annotated HelloWorld program
+	 * Test the annotated HelloWorld program
 	 */
 	@Test
 	public void testProgram() throws Exception {
-		InputStream program = new FileInputStream("programs/hello.bf");
+		InputStream program = new FileInputStream("programs/hello-annotated.bf");
 		InputStream in = new FileInputStream("/dev/null");
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 
