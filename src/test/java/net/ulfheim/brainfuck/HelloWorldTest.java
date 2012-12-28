@@ -15,7 +15,7 @@ public class HelloWorldTest
 {
 	
 	/**
-	 * Test the un-annotated HelloWorld program
+	 * Test the un-annotated HelloWorld program.
 	 */
 	@Test
 	public void testProgram() throws Exception {

@@ -4,7 +4,6 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
 import java.io.InputStream;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
@@ -16,9 +15,6 @@ import static org.junit.Assert.*;
 public class Rot13Test
 {
 	
-	/**
-	 * Test the un-annotated HelloWorld program
-	 */
 	@Test
 	public void testProgram() throws Exception {
 		InputStream program = new FileInputStream("programs/rot13.bf");

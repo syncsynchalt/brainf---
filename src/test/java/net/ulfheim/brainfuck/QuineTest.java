@@ -1,5 +1,6 @@
 package net.ulfheim.brainfuck;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
 import java.io.InputStream;
@@ -11,22 +12,22 @@ import static org.junit.Assert.*;
  *
  * @author mdriscoll
  */
-public class HelloWorldAnnotatedTest
+public class QuineTest
 {
-	
-	/**
-	 * Test the annotated HelloWorld program.
-	 */
 	@Test
 	public void testProgram() throws Exception {
-		InputStream program = new FileInputStream("programs/hello-annotated.bf");
+		InputStream stream = new FileInputStream("programs/quine.bf");
+		byte[] b  = new byte[10000];
+		int numBytes = stream.read(b);
+		InputStream program = new ByteArrayInputStream(b, 0, numBytes);
+		String programAsString = new String(b, 0, numBytes, "UTF-8");
+
 		InputStream in = new FileInputStream("/dev/null");
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 
 		BrainfuckContext bf = new BrainfuckContext();
 		bf.parse(program, in, out);
 
-		System.out.println("Got: " + out.toString("UTF-8"));
-		assertEquals("Hello World!\n", out.toString("UTF-8"));
+		assertEquals(programAsString, out.toString("UTF-8"));
 	}
 }
