@@ -20,6 +20,7 @@ public class App
 			InputStream in = new FileInputStream(args[0]);
 			BrainfuckContext bf = new BrainfuckContext();
 			bf.parse(in, System.in, System.out);
+			System.out.flush();
 		} catch (IOException ex) {
 			System.err.println(ex.getMessage());
 			ex.printStackTrace();
