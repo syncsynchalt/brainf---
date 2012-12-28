@@ -19,7 +19,7 @@ class BrainfuckContext {
 
 	List<Byte> mill = new ArrayList<Byte>(1000);
 	int index;
-	int level;
+	int depth;
 
 	public BrainfuckContext() {
 		mill.add((byte)0);
@@ -28,22 +28,29 @@ class BrainfuckContext {
 	private void printDebugInfo(String command) {
 		Formatter formatter = new Formatter();
 		byte current = mill.get(index);
+		int currentAsInt;
+		if (current < 0) {
+			currentAsInt = 0x100 + current;
+		} else {
+			currentAsInt = (int)current;
+		}
+		assert(currentAsInt <= 0xFF && currentAsInt >= 0x00);
 
-		String depthLine = "          ".substring(0, level > 10 ? 10 : level);
+		String depthLine = "          ".substring(0, depth > 10 ? 10 : depth);
 		String logLine;
 		if (current >= 0x20 && current < 0x7f) {
 			logLine = formatter.format("[%s%s %d:0x%02X (%c)]",
 					depthLine,
 					command,
 					index,
-					(int)current,
+					currentAsInt,
 					(char)current).toString();
 		} else {
 			logLine = formatter.format("[%s%s %d:0x%02X]",
 					depthLine,
 					command,
 					index,
-					(int)current).toString();
+					currentAsInt).toString();
 		}
 		logger.debug(logLine);
 	}
@@ -112,28 +119,44 @@ class BrainfuckContext {
 	private void runSubProgram(InputStream program, InputStream in, OutputStream out)
 			throws IOException, BrainfuckConstraint
 	{
-		StringBuilder subProgramString = new StringBuilder();
-		for (;;) {
-			int inputChar = program.read();
-			if (inputChar == -1) {
-				throw new BrainfuckConstraint("Unmatched '['");
-			}
-			byte c = (byte)inputChar;
-			if (c == ']') {
-				break;
-			}
-			subProgramString.append((char)c);
-		}
+		String subProgram = readSubProgram(program);
 
-		String subProgram = subProgramString.toString();
 		byte[] subProgramBytes = subProgram.getBytes("UTF-8");
-		level++;
+		depth++;
 		while (mill.get(index) != 0) {
 			printDebugInfo("@");
 			InputStream newProgram = new ByteArrayInputStream(subProgramBytes);
 			parse(newProgram, in, out);
 		}
 		printDebugInfo("@!");
-		level--;
+		depth--;
+	}
+
+	private String readSubProgram(InputStream program)
+			throws BrainfuckConstraint, IOException
+	{
+		int curDepth = 1;
+		StringBuilder subProgramString = new StringBuilder();
+loop:	for (;;) {
+			int inputChar = program.read();
+			if (inputChar == -1) {
+				throw new BrainfuckConstraint("Unmatched '['");
+			}
+
+			byte c = (byte)inputChar;
+			switch (c) {
+				case '[':
+					curDepth++;
+					break;
+				case ']':
+					curDepth--;
+					if (curDepth == 0) {
+						break loop;
+					}
+					break;
+			}
+			subProgramString.append((char)c);
+		}
+		return subProgramString.toString();
 	}
 }
