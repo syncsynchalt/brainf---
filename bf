@@ -1,4 +1,4 @@
 #!/bin/sh
 
-JAR=$(ls target/brainfuck-*.jar | tail -n 1)
-java ${JAR}
+JAR=$(ls target/brainfuck-*-with-dependencies.jar | tail -n 1)
+java -jar "${JAR}" "$@"

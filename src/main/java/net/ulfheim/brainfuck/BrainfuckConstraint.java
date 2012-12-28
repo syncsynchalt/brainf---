@@ -8,10 +8,10 @@ package net.ulfheim.brainfuck;
  *
  * @author mdriscoll
  */
-class BrainFuckConstraint extends Exception {
+class BrainfuckConstraint extends Exception {
 	private static final long serialVersionUID = 1L;
 
-	public BrainFuckConstraint(String message) {
+	public BrainfuckConstraint(String message) {
 		super(message);
 	}
 

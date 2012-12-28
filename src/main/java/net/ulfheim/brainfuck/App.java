@@ -19,11 +19,11 @@ public class App
 		try {
 			InputStream in = new FileInputStream(args[0]);
 			BrainfuckContext bf = new BrainfuckContext();
-			bf.parse(in);
+			bf.parse(in, System.in, System.out);
 		} catch (IOException ex) {
 			System.err.println(ex.getMessage());
 			ex.printStackTrace();
-		} catch (BrainFuckConstraint ex) {
+		} catch (BrainfuckConstraint ex) {
 			System.err.println(ex.getMessage());
 			ex.printStackTrace();
 		}
