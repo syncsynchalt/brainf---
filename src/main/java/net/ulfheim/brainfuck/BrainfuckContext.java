@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Formatter;
-import java.util.Stack;
 import org.apache.log4j.Logger;
 
 /**
@@ -17,11 +16,11 @@ class BrainfuckContext {
 
 	private byte[] mill;
 	private int index;
-	private Stack<Integer> loopStarts;
+	private IntStack loopStarts;
 
 	public BrainfuckContext(int size) {
 		mill = new byte[size];
-		loopStarts = new Stack<Integer>();
+		loopStarts = new IntStack(size/8);
 	}
 
 	public BrainfuckContext() {

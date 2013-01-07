@@ -16,8 +16,6 @@ public class QuineTest
 	@Test
 	public void testProgram() throws Exception {
 		String code = FileReader.asString("programs/quine.bf");
-		byte[] b  = new byte[10000];
-
 		InputStream in = new FileInputStream("/dev/null");
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 
