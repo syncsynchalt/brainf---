@@ -19,12 +19,12 @@ public class HelloWorldTest
 	 */
 	@Test
 	public void testProgram() throws Exception {
-		InputStream program = new FileInputStream("programs/hello.bf");
+		String code = FileReader.asString("programs/hello.bf");
 		InputStream in = new FileInputStream("/dev/null");
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 
 		BrainfuckContext bf = new BrainfuckContext();
-		bf.parse(program, in, out);
+		bf.parse(code, in, out);
 
 		System.out.println("Got: " + out.toString("UTF-8"));
 		assertEquals("Hello World!\n", out.toString("UTF-8"));

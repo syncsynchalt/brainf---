@@ -1,10 +1,10 @@
 package net.ulfheim.brainfuck;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Formatter;
+import java.util.Stack;
 import org.apache.log4j.Logger;
 
 /**
@@ -17,10 +17,11 @@ class BrainfuckContext {
 
 	private byte[] mill;
 	private int index;
-	private int depth;
+	private Stack<Integer> loopStarts;
 
 	public BrainfuckContext(int size) {
 		mill = new byte[size];
+		loopStarts = new Stack<Integer>();
 	}
 
 	public BrainfuckContext() {
@@ -42,6 +43,7 @@ class BrainfuckContext {
 		}
 		assert(currentAsInt <= 0xFF && currentAsInt >= 0x00);
 
+		int depth = loopStarts.size();
 		String depthLine = "          ".substring(0, depth > 10 ? 10 : depth);
 		String logLine;
 		if (current >= 0x20 && current < 0x7f) {
@@ -61,15 +63,11 @@ class BrainfuckContext {
 		logger.debug(logLine);
 	}
 
-	public void parse(InputStream program, InputStream in, OutputStream out)
+	public void parse(String code, InputStream in, OutputStream out)
 			throws IOException, BrainfuckConstraint
 	{
-		for (;;) {
-			int inputChar = program.read();
-			if (inputChar == -1) {
-				return;
-			}
-			byte c = (byte)inputChar;
+		for (int codePtr = 0; codePtr < code.length(); codePtr++) {
+			char c = code.charAt(codePtr);
 
 			byte value;
 			switch (c) {
@@ -114,53 +112,47 @@ class BrainfuckContext {
 					break;
 				case '[':
 					printDebugInfo("[");
-					runSubProgram(program, in, out);
-					break;
-			}
-		}
-	}
-
-	private void runSubProgram(InputStream program, InputStream in, OutputStream out)
-			throws IOException, BrainfuckConstraint
-	{
-		String subProgram = readSubProgram(program);
-
-		byte[] subProgramBytes = subProgram.getBytes("UTF-8");
-		depth++;
-		while (mill[index] != 0) {
-			printDebugInfo("@");
-			InputStream newProgram = new ByteArrayInputStream(subProgramBytes);
-			parse(newProgram, in, out);
-		}
-		printDebugInfo("@!");
-		depth--;
-	}
-
-	private String readSubProgram(InputStream program)
-			throws BrainfuckConstraint, IOException
-	{
-		int curDepth = 1;
-		StringBuilder subProgramString = new StringBuilder();
-loop:	for (;;) {
-			int inputChar = program.read();
-			if (inputChar == -1) {
-				throw new BrainfuckConstraint("Unmatched '['");
-			}
-
-			byte c = (byte)inputChar;
-			switch (c) {
-				case '[':
-					curDepth++;
+					if (mill[index] == 0) {
+						int endLoop = findEndOfLoop(code, codePtr);
+						codePtr = endLoop;
+					} else {
+						loopStarts.push(codePtr);
+					}
 					break;
 				case ']':
-					curDepth--;
-					if (curDepth == 0) {
-						break loop;
+					printDebugInfo("]");
+					if (mill[index] == 0) {
+						loopStarts.pop();
+					} else {
+						int startLoop = loopStarts.peek();
+						codePtr = startLoop;
 					}
 					break;
 			}
-			subProgramString.append((char)c);
 		}
-		return subProgramString.toString();
+	}
+
+	private int findEndOfLoop(String code, int codePtr)
+			throws BrainfuckConstraint
+	{
+		int matchDepth = 1;
+		for (int i = codePtr + 1; ; i++) {
+			if (i >= code.length()) {
+				throw new BrainfuckConstraint("Unmatched '['");
+			}
+			switch (code.charAt(i)) {
+				case '[':
+					matchDepth++;
+					break;
+				case ']':
+					matchDepth--;
+					if (matchDepth == 0) {
+						return i;
+					}
+					break;
+				default:
+					break;
+			}
+		}
 	}
 }

@@ -1,8 +1,6 @@
 package net.ulfheim.brainfuck;
 
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.FileNotFoundException;
 
 /**
  * Parse a brainfuck program!
@@ -17,16 +15,17 @@ public class App
 		}
 
 		try {
-			InputStream in = new FileInputStream(args[0]);
+			String code = FileReader.asString(args[0]);
 			BrainfuckContext bf = new BrainfuckContext();
-			bf.parse(in, System.in, System.out);
+			bf.parse(code, System.in, System.out);
 			System.out.flush();
-		} catch (IOException ex) {
+		} catch (FileNotFoundException ex) {
+			System.err.println("No such file " + args[0]);
+			System.exit(1);
+		} catch (Exception ex) {
 			System.err.println(ex.getMessage());
 			ex.printStackTrace();
-		} catch (BrainfuckConstraint ex) {
-			System.err.println(ex.getMessage());
-			ex.printStackTrace();
+			System.exit(1);
 		}
 	}
 }
